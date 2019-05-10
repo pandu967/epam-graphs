@@ -1,0 +1,105 @@
+import java.io.*;
+import java.math.*;
+import java.security.*;
+import java.text.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.regex.*;
+
+public class Solution {
+    static int bfs(int s,ArrayList<ArrayList<Integer>>list, boolean vis[]){
+        Queue<Integer>Q=new LinkedList<Integer>();
+        Q.add(s);
+       int cities=0;
+        while(Q.size()!=0){
+            int e=Q.poll();
+            vis[e]=true;
+            cities++;
+       
+            for(Integer i:list.get(e)){
+                if(vis[i]!=true){
+                    Q.add(i);
+                    vis[i]=true;
+                }
+            }
+        }
+        return cities;
+    }
+    // Complete the roadsAndLibraries function below.
+    static long roadsAndLibraries(int n, int c_lib, int c_road, int[][] cities) {
+        ArrayList<ArrayList<Integer>> grp = new ArrayList<ArrayList<Integer>>();
+        int m = cities.length;
+        for(int i=0;i<=n;i++)
+            grp.add(i,new ArrayList<Integer>());
+        for(int i=0;i<m;i++){
+            int src = cities[i][0];
+            int des = cities[i][1];
+            grp.get(src).add(des);
+            grp.get(des).add(src);
+        }
+        long sum = 0;
+        
+        boolean vis[] = new boolean[n+1];
+       
+            for(int i=1;i<=n;i++){
+                if(!vis[i]){
+                    if(grp.get(i).size()==0){
+                        sum=sum+c_lib;
+                        vis[i]=true;
+                    }
+                    else{
+                    int ans= bfs(i,grp,vis);
+                    
+                    long cost = Math.min(ans*c_lib,(ans-1)*c_road+c_lib);
+                        sum=(sum+cost);
+                    }
+                }
+                //System.out.println(sum);
+            }
+        
+        
+    return sum;
+    }
+
+    private static final Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) throws IOException {
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
+
+        int q = scanner.nextInt();
+        scanner.skip("(\r\n|[\n\r\u2028\u2029\u0085])?");
+
+        for (int qItr = 0; qItr < q; qItr++) {
+            String[] nmC_libC_road = scanner.nextLine().split(" ");
+
+            int n = Integer.parseInt(nmC_libC_road[0]);
+
+            int m = Integer.parseInt(nmC_libC_road[1]);
+
+            int c_lib = Integer.parseInt(nmC_libC_road[2]);
+
+            int c_road = Integer.parseInt(nmC_libC_road[3]);
+
+            int[][] cities = new int[m][2];
+
+            for (int i = 0; i < m; i++) {
+                String[] citiesRowItems = scanner.nextLine().split(" ");
+                scanner.skip("(\r\n|[\n\r\u2028\u2029\u0085])?");
+
+                for (int j = 0; j < 2; j++) {
+                    int citiesItem = Integer.parseInt(citiesRowItems[j]);
+                    cities[i][j] = citiesItem;
+                }
+            }
+
+            long result = roadsAndLibraries(n, c_lib, c_road, cities);
+
+            bufferedWriter.write(String.valueOf(result));
+            bufferedWriter.newLine();
+        }
+
+        bufferedWriter.close();
+
+        scanner.close();
+    }
+}
